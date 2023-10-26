@@ -39,9 +39,9 @@ listContainer.addEventListener('click', function(event){
 Запрос не отработал => Вывод ошибки в консоль (для разработчика) + alert (для пользователя)*/
 async function addTask(){ 
 	try {
-		const newTask = {};
-		const usersPromise = fetchData(urlUsersData); 
-		const todoPromise = fetchData(urlTodoData);
+		if (!navigator.onLine) {
+			throw new Error('Internet connection error. Check the connection and reload the page.');
+		}
 
 		//Проверка поля ввода и выпадающего списка на пустоту
 		if ((inputBox.value === '') || (comboBox.value === 'select user')){
@@ -49,7 +49,8 @@ async function addTask(){
 		}
 
 		//Заполнение необходимых полей в объекте, который будет добавлен в БД
-		const [todoData, usersData] = await Promise.all([todoPromise, usersPromise]); 
+		const newTask = {};
+		const [todoData, usersData] = await Promise.all([fetchData(urlTodoData), fetchData(urlUsersData)]); 
 		newTask.id = todoData.length + 1;
 		let userInfo = usersData.find(item => item.name === comboBox.value); 
 		newTask.userId = userInfo.id; 
@@ -79,6 +80,10 @@ async function addTask(){
 Запрос не отработал => Вывод ошибки в консоль (для разработчика) + alert (для пользователя)*/
 async function changeStatus(changeStatusId){
 	try {
+		if (!navigator.onLine) {
+			throw new Error('Internet connection error. Check the connection and reload the page.');
+		}
+
 		const todoPromise = fetchData(urlTodoData);
 		const todoData = await todoPromise;
 
@@ -110,6 +115,10 @@ async function changeStatus(changeStatusId){
 Запрос не отработал => Вывод ошибки в консоль (для разработчика) + alert (для пользователя)*/
 async function removeTask(removeTaskId){
 	try {
+		if (!navigator.onLine) {
+			throw new Error('Internet connection error. Check the connection and reload the page.');
+		}
+
 		const response = await fetch(`${urlTodoData}/${removeTaskId}`, { 
 			method: 'DELETE', 
 			headers: {
@@ -161,10 +170,11 @@ async function fetchData(url){
 //Асинхронная функция для обновления страницы
 async function updateWindow(){
 	try{
-		const usersPromise = fetchData(urlUsersData); 
-		const todoPromise = fetchData(urlTodoData);
+		if (!navigator.onLine) {
+			throw new Error('Internet connection error. Check the connection and reload the page.');
+		}
 
-		const [todoData, usersData] = await Promise.all([todoPromise, usersPromise]); 
+		const [todoData, usersData] = await Promise.all([fetchData(urlTodoData), fetchData(urlUsersData)]); 
 		
 		usersData.forEach(item => {
 			let optionTitle = item.name;
@@ -221,4 +231,3 @@ function createItem(string, status, id, newTask = 0){
 	deleteBtn.innerHTML = '\u00d7';
 	listItem.appendChild(deleteBtn);
 }
-
